@@ -1,0 +1,59 @@
+from pygments.lexer import default
+from sqlalchemy import Column, String, Integer, Date
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+
+from src.db.database import Base
+from datetime import date
+
+from src.schemas.auth import RegRequestRead
+from src.schemas.auth import UserRead
+from src.schemas.donations import DonationRead
+
+
+class Achievement(Base):
+    __tablename__ = 'achievement'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    get_at = Column(Date, default=date.today)
+
+
+class Users(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    telegram_id: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    name: Mapped[str] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    password: Mapped[str] = mapped_column(String(255))
+    registered_at: Mapped[date] = mapped_column(Date, default=date.today)
+    role_id: Mapped[int] = mapped_column(Integer,nullable=False,default = 2)
+
+    donations: Mapped[list["DonationRead"]] = relationship("Donation", back_populates="user")
+
+    def to_read_model(self) -> "UserRead":
+        return UserRead(
+            id=self.id,
+            name=self.name,
+            telegram_id = self.telegram_id,
+            email=self.email,
+            role_id=self.role_id,
+            registered_on=self.registered_at
+        )
+
+
+class RegRequest(Base):
+    __tablename__ = 'reg_request'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    telegram_id: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    name: Mapped[str] = mapped_column(String)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    password: Mapped[str] = mapped_column(String(255), unique=True)
+
+    def to_read_model(self) -> "RegRequestRead":
+        return RegRequestRead(
+            id=self.id,
+            telegram_id=self.telegram_id,
+            name=self.name,
+            email=self.email
+        )

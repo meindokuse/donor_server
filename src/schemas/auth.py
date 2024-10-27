@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel
@@ -15,25 +15,26 @@ class UserCreate(BaseModel):
 
 
 class UserRead(BaseModel):
+    id:int
     name: str
     telegram_id: Optional[str]
-    email: str
+    email: Optional[str]
     role_id: int
-    registered_on: datetime
+    registered_on: date
 
     class Config:
         orm_mode = True
 
 
 class RegRequestCreate(BaseModel):
-    username: str
+    name: str
     telegram_id: Optional[str]
     email: Optional[str]
     password: str
 
 
 class RegRequestRead(BaseModel):
-    username: str
+    id:int
+    name: str
+    telegram_id: Optional[str]
     email: Optional[str]
-    password: Optional[str]
-    registered_on: datetime

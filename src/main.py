@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from src.auth.router import router as user_router
-from src.blood.router import router as blood_router
+
+from src.api.routers import all_routers
+
 app = FastAPI(
     title="Donor Service",
 )
 
-app.include_router(user_router)
-app.include_router(blood_router)
+for router in all_routers:
+    app.include_router(router)

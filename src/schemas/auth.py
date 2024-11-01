@@ -6,9 +6,10 @@ from pydantic import BaseModel
 
 class UserCreate(BaseModel):
     name: str
-    telegram_id: Optional[str]
-    email: Optional[str]
-    password: str
+    telegram_id: int
+    group: int
+    rezus: int
+    kell: int
 
     class Config:
         orm_mode = True
@@ -17,8 +18,10 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     id:int
     name: str
-    telegram_id: Optional[str]
-    email: Optional[str]
+    telegram_id: int
+    group: int
+    rezus: int
+    kell: int
     role_id: int
     registered_on: date
 

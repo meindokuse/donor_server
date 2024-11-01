@@ -1,15 +1,9 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException, Query
 
 from src.api.dependencies import UOWDep
-from src.auth.utils import get_user_by_name
-from src.db.database import get_async_session
-from src.auth.user_strategy import get_user
-from src.models.donations import Donation
-from src.schemas.donations import DonationCreate, DonationRead
+from src.schemas.donations import DonationCreate
 from src.services.donation_service import DonationService
 from src.services.user_service import UserService
 
@@ -29,7 +23,10 @@ async def get_donations_info_from_user(
 
         donation_info = await DonationService().get_donations_info_from_user(uow, telegram_id)
 
-        return donation_info
+        return {
+            "status":"success",
+            "donation_info":donation_info
+        }
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -96,7 +93,7 @@ async def get_info_donations_all(
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-
+# ДОБАВИТЬ ТИП
 @router.get("/admin/get_all_donations")
 async def get_all_donations(
         page: int,

@@ -1,26 +1,19 @@
 from datetime import date
-from typing import Optional
 
 from pydantic import BaseModel
 
 
 class DonationCreate(BaseModel):
     owner: str
-    group: int
-    kell: str
-    tromb: Optional[str]
-    plazma: Optional[str]
-    rezus: Optional[int]
+    type: str
+    is_free: bool
     org: str
 
 class DonationRead(BaseModel):
     id:int
+    type:str
     owner: str
-    group: int
-    kell: str
-    tromb: Optional[str]
-    plazma: Optional[str]
-    rezus: Optional[int]
+    is_free: bool
     date: date
     org: str
 

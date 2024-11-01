@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy import Exists
 
 from src.schemas.auth import RegRequestCreate
-from src.utils.unitofwork import IUnitOfWork
+from src.data.unitofwork import IUnitOfWork
 
 
 class RegRequestService:

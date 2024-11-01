@@ -20,11 +20,12 @@ class Achievement(Base):
 class Users(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    telegram_id: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    id: Mapped[int] = mapped_column(Integer,primary_key=True)
+    telegram_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=True)
     name: Mapped[str] = mapped_column(String, unique=True)
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=True)
-    password: Mapped[str] = mapped_column(String(255))
+    group: Mapped[int] = mapped_column(Integer,nullable=False)
+    kell: Mapped[int] = mapped_column(Integer,nullable=False)
+    rezus: Mapped[int] = mapped_column(Integer,nullable=False)
     registered_at: Mapped[date] = mapped_column(Date, default=date.today)
     role_id: Mapped[int] = mapped_column(Integer,nullable=False,default = 2)
 
@@ -34,8 +35,10 @@ class Users(Base):
         return UserRead(
             id=self.id,
             name=self.name,
+            group=self.group,
+            rezus=self.rezus,
+            kell=self.kell,
             telegram_id = self.telegram_id,
-            email=self.email,
             role_id=self.role_id,
             registered_on=self.registered_at
         )

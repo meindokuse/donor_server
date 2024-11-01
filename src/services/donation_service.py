@@ -3,42 +3,48 @@ from datetime import datetime, timedelta
 from sqlalchemy.sql.functions import current_date
 
 from src.schemas.donations import DonationCreate
-from src.utils.unitofwork import IUnitOfWork
+from src.data.unitofwork import IUnitOfWork
+
+from src.utils import type_donations
 
 
 class DonationService:
 
     async def get_donations_info_from_user(self, uow: IUnitOfWork, telegram_id: str):
 
-        status:int # проверка для перерыва в донациях в 2 месяца
+        donations_info = {}
+
+        status: int  # проверка для перерыва в донациях в 2 месяца
         today_date = datetime.today().date()
         two_months_ago = today_date - timedelta(days=60)
+        one_month_ago = today_date - timedelta(days=30)
+        two_weeks_ago = today_date - timedelta(days=14)
 
         async with uow:
 
             user = await uow.users.find_one(telegram_id=telegram_id)
             name = user.name
 
-            donations = await uow.donations.find_all(page=1, limit=0, owner=name)
+            for t in type_donations:
+                donations = await uow.donations.find_all(page=1, limit=0, owner=name,type = t)
 
-            if donations:
+                if donations:
+                    quantity_donation = len(donations)
 
-                quantity_donation = len(donations)
-                last_donation = max(donations, key=lambda donation: donation.id) if donations else None
+                    last_donation = max(donations, key=lambda donation: donation.id) if donations else None
 
-                last_data = last_donation.date
+                    last_data = last_donation.date
 
-                status = 1 if last_data <= two_months_ago else 0
-            else:
-                quantity_donation = 0
-                last_donation = "Вы еще не делали донации"
-                status = 1
+                    if t == "Цельная кровь":
+                        status = 1 if last_data <= two_months_ago else 0
+                    if t == "Плазма" or "Тромбоциты":
+                        status = 1 if last_data <= two_weeks_ago else 0
+                    if t == "Гранулоциты":
+                        status = 1 if last_data <= one_month_ago else 0
 
-            return {
-                "quantity_donation": quantity_donation,
-                "last_donation": last_donation,
-                "status":status
-            }
+                    donations[t] = {"quantity_donation": quantity_donation, "last_donation": last_donation,"status": status}
+
+            return donations_info
 
     async def get_user_donations(
             self,

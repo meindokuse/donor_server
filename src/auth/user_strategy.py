@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas.auth import UserRead
-from src.auth.utils import get_user_by_telegram_id
+from src.utils import get_user_by_telegram_id
 
 
 __all__ = ['get_user']

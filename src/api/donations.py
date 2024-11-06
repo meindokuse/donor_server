@@ -8,24 +8,25 @@ from src.services.donation_service import DonationService
 from src.services.user_service import UserService
 
 router = APIRouter(
-    prefix="/router",
-    tags=["router"],
+    prefix="/donation",
+    tags=["donation"],
 )
 
 
 # ЭНДПОИНТЫ ДЛЯ ОБЫЧНЫХ ПОЛЬЗОВАТЕЛЕЙ
-@router.get("/get_donations_info_from_user")
+@router.get("/get_donation_info")
 async def get_donations_info_from_user(
-        telegram_id: Optional[str],
-        uow: UOWDep
+        uow: UOWDep,
+        telegram_id: Optional[int] = Query(None),
 ):
     try:
-
         donation_info = await DonationService().get_donations_info_from_user(uow, telegram_id)
+        user = await UserService().get_user(uow, telegram_id)
 
         return {
-            "status":"success",
-            "donation_info":donation_info
+            "status": "success",
+            "user": user,
+            "donation_info": donation_info
         }
 
     except Exception as e:
@@ -37,7 +38,7 @@ async def get_user_donations(
         uow: UOWDep,
         page: int,
         limit: int,
-        telegram_id: Optional[str] = Query(None),
+        telegram_id: Optional[int] = Query(None),
 ):
     try:
 
@@ -52,7 +53,7 @@ async def get_user_donations(
         else:
             return {
                 "status": "error",
-                "message": "Информации не найдено, возможно вы ввели неверные данные"
+                "message": "Донаций не найдено"
             }
 
     except Exception as e:
@@ -74,40 +75,53 @@ async def add_donation(
             "id": donation_id
         }
 
-
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
 
-@router.get("/admin/get_info_donations_all")
-async def get_info_donations_all(
-        start_date: str,
-        end_date: str,
-        uow: UOWDep
-):
-    try:
-        info = await DonationService().get_info_donations_period(uow, start_date, end_date)
-
-        return info
-
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
-# ДОБАВИТЬ ТИП
 @router.get("/admin/get_all_donations")
 async def get_all_donations(
+        uow: UOWDep,
         page: int,
         limit: int,
         start_date: str,
         end_date: str,
-        uow: UOWDep
+        type_donation: Optional[str] = Query(None),
+
 ):
     try:
-        donations = await DonationService().get_all_donations(uow, start_date, end_date, page, limit)
+        donations_info = await DonationService().get_all_donations(uow, start_date, end_date, page, limit,
+                                                                   type_donation)
+
         return {
             "status": "success",
-            "data": donations,
+            "data": donations_info,
         }
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+@router.get("/admin/get_donations_info_from_user")
+async def get_donations_info_from_user(
+        uow: UOWDep,
+        name: str,
+):
+    try:
+        donation_info = await DonationService().get_donations_info_from_user(uow, name=name)
+        user = await UserService().get_user_by_name(uow, name)
+
+        return {
+            "status": "success",
+            "user": user,
+            "donation_info": donation_info
+        }
+
+    except Exception as e:
+        return {
+            'status': 'error',
+            'details': e
+        }

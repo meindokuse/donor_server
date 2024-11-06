@@ -6,15 +6,17 @@ from src.schemas.donations import DonationCreate
 from src.data.unitofwork import IUnitOfWork
 
 from src.utils import type_donations
+from typing import Optional
 
 
 class DonationService:
 
-    async def get_donations_info_from_user(self, uow: IUnitOfWork, telegram_id: str):
+    async def get_donations_info_from_user(self, uow: IUnitOfWork, telegram_id: Optional[int] = None,
+                                           name: Optional[str] = None):
 
         donations_info = {}
 
-        status: int  # проверка для перерыва в донациях в 2 месяца
+        status: int  # проверка для перерыва в донациях
         today_date = datetime.today().date()
         two_months_ago = today_date - timedelta(days=60)
         one_month_ago = today_date - timedelta(days=30)
@@ -22,34 +24,41 @@ class DonationService:
 
         async with uow:
 
-            user = await uow.users.find_one(telegram_id=telegram_id)
-            name = user.name
+            if telegram_id:
+                user = await uow.users.find_one(telegram_id=telegram_id)
+                name = user.name
+            else:
+                user = await uow.users.find_one(name=name)
+                name = user.name
+
+            last_donation = max(await uow.donations.find_all(page=1, limit=0, owner=name),
+                                key=lambda donation: donation.id)
+            last_data = last_donation.date
 
             for t in type_donations:
-                donations = await uow.donations.find_all(page=1, limit=0, owner=name,type = t)
+                donations = await uow.donations.find_all(page=1, limit=0, owner=name, type=t)
 
                 if donations:
                     quantity_donation = len(donations)
 
-                    last_donation = max(donations, key=lambda donation: donation.id) if donations else None
-
-                    last_data = last_donation.date
+                    last_donation_type = max(donations, key=lambda donation: donation.id) if donations else None
 
                     if t == "Цельная кровь":
                         status = 1 if last_data <= two_months_ago else 0
-                    if t == "Плазма" or "Тромбоциты":
+                    if t in ["Плазма", "Тромбоциты"]:
                         status = 1 if last_data <= two_weeks_ago else 0
                     if t == "Гранулоциты":
                         status = 1 if last_data <= one_month_ago else 0
 
-                    donations[t] = {"quantity_donation": quantity_donation, "last_donation": last_donation,"status": status}
+                    donations_info[t] = {"quantity_donation": quantity_donation, "last_donation": last_donation_type,
+                                         "status": status}
 
             return donations_info
 
     async def get_user_donations(
             self,
             uow: IUnitOfWork,
-            telegram_id: str,
+            telegram_id: int,
             page: int,
             limit: int,
     ):
@@ -59,7 +68,7 @@ class DonationService:
 
             donations = await uow.donations.find_all(page=page, limit=limit, owner=name)
 
-            return donations
+            return {'donations': donations, 'quantity_donation': len(donations)}
 
     async def add_donation(self, uow: IUnitOfWork, donation_data: DonationCreate):
 
@@ -70,37 +79,6 @@ class DonationService:
             await uow.commit()
             return donation_id
 
-    async def get_info_donations_period(
-            self,
-            uow: IUnitOfWork,
-            start_date: str,
-            end_date: str,
-    ):
-        if start_date == end_date:
-            raise ValueError("start_date and end_date cannot be the same")
-
-        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
-
-        limit = 0
-        async with uow:
-            donation_start_list = await uow.donations.find_all(date=start_date_obj, page=0, limit=limit)
-            donation_end_list = await uow.donations.find_all(date=end_date_obj, page=0, limit=limit)
-
-            donations = donation_start_list + donation_end_list
-
-            if len(donations) != 0:
-                quantity_donation = len(donations)
-                last_donation = max(donations, key=lambda donation: donation.date) if donations else None
-            else:
-                quantity_donation = 0
-                last_donation = "Донаций за данный период не найдено"
-
-            return {
-                "quantity_donation": quantity_donation,
-                "last_donation": last_donation,
-            }
-
     async def get_all_donations(
             self,
             uow: IUnitOfWork,
@@ -108,14 +86,22 @@ class DonationService:
             end_date: str,
             page: int,
             limit: int,
+            type_donation: Optional[str] = None,
     ):
+
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
         end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
 
         async with uow:
-            donation_start_list = await uow.donations.find_all(date=start_date_obj, page=page, limit=limit)
-            donation_end_list = await uow.donations.find_all(date=end_date_obj, page=page, limit=limit)
+            donations_t_list = await uow.donations.get_donations_by_date(start_date=start_date_obj,
+                                                                         end_date=end_date_obj, page=page, limit=limit)
 
-            donations = donation_start_list + donation_end_list
+            all_donations = await uow.donations.get_donations_by_date(start_date=start_date_obj,
+                                                                      end_date=end_date_obj, page=page, limit=0)
 
-            return donations
+            quantity_donation = len(all_donations)
+
+            return {
+                "quantity_donation": quantity_donation,
+                "donations": donations_t_list
+            }

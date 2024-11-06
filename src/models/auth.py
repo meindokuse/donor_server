@@ -12,8 +12,9 @@ from src.schemas.donations import DonationRead
 
 class Achievement(Base):
     __tablename__ = 'achievement'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    name = Column(String,nullable=False)
+    owner = Column(String, nullable=False)
     get_at = Column(Date, default=date.today)
 
 

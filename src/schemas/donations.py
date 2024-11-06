@@ -9,11 +9,11 @@ class DonationCreate(BaseModel):
     is_free: bool
     org: str
 
+
 class DonationRead(BaseModel):
-    id:int
-    type:str
+    id: int
+    type: str
     owner: str
     is_free: bool
     date: date
     org: str
-

@@ -1,7 +1,7 @@
 from sqlalchemy import delete
 
 from src.models.auth import RegRequest
-from src.utils.repository import SQLAlchemyRepository
+from src.data.repository import SQLAlchemyRepository
 
 
 class RegRequestRepository(SQLAlchemyRepository):

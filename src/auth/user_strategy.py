@@ -3,8 +3,8 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.dependencies import UOWDep
 from src.schemas.auth import UserRead
-from src.utils import get_user_by_telegram_id
 
 
 __all__ = ['get_user']
@@ -17,7 +17,7 @@ class _UserStrategy(ABC):
 
 
 class _TelegramUserStrategy(_UserStrategy):
-    async def get_current_user(self, telegram_id: Optional[str],session: AsyncSession):
+    async def get_current_user(self, telegram_id: Optional[str],uow: UOWDep):
         if telegram_id:
             user = await get_user_by_telegram_id(telegram_id,session)
             return user

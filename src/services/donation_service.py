@@ -11,7 +11,7 @@ from typing import Optional
 
 class DonationService:
 
-    async def get_donations_info_from_user(self, uow: IUnitOfWork, telegram_id: Optional[int] = None,
+    async def get_donations_info_from_user(self, uow: IUnitOfWork, telegram_id: Optional[str] = None,
                                            name: Optional[str] = None):
 
         donations_info = {}
@@ -58,7 +58,7 @@ class DonationService:
     async def get_user_donations(
             self,
             uow: IUnitOfWork,
-            telegram_id: int,
+            telegram_id: str,
             page: int,
             limit: int,
     ):

@@ -18,7 +18,7 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     id:int
     name: str
-    telegram_id: int
+    telegram_id: str
     group: int
     rezus: int
     kell: int

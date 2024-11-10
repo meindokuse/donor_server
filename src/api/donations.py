@@ -17,7 +17,7 @@ router = APIRouter(
 @router.get("/get_donation_info")
 async def get_donations_info_from_user(
         uow: UOWDep,
-        telegram_id: Optional[int] = Query(None),
+        telegram_id: Optional[str] = Query(None),
 ):
     try:
         donation_info = await DonationService().get_donations_info_from_user(uow, telegram_id)
@@ -38,7 +38,7 @@ async def get_user_donations(
         uow: UOWDep,
         page: int,
         limit: int,
-        telegram_id: Optional[int] = Query(None),
+        telegram_id: Optional[str] = Query(None),
 ):
     try:
 

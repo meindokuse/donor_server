@@ -19,7 +19,7 @@ class UserService:
             await uow.commit()
             return user_id
 
-    async def get_user(self, uow: IUnitOfWork, tg_id: int):
+    async def get_user(self, uow: IUnitOfWork, tg_id: str):
         async with uow:
             user = await uow.users.find_one(telegram_id=tg_id)
             return user

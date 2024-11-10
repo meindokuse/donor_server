@@ -70,14 +70,16 @@ async def register(user_create: UserCreate, uow: UOWDep):
 
 
 @router.get("/login")
-async def login(telegram_id: int, uow: UOWDep):
+async def login(telegram_id: str, uow: UOWDep):
     try:
         user = await UserService().get_user(uow, telegram_id)
 
         return {"status": "success", "user": user}
 
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise {
+            "status": "fail",
+        }
 
 
 @router.get("/check_exist")

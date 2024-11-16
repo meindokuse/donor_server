@@ -30,7 +30,7 @@ async def get_donations_info_from_user(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/get_user_donations")

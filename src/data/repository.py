@@ -20,6 +20,13 @@ class SQLAlchemyRepository(AbstractRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+
+    async def get_table(self):
+        stmt = select(self.model)
+        res = await self.session.execute(stmt)
+        res = [row[0].to_read_model() for row in res.all()]
+        return res
+
     async def add_one(self, data: dict) -> int:
         stmt = insert(self.model).values(**data).returning(self.model.id)
         res = await self.session.execute(stmt)

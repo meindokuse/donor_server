@@ -1,0 +1,6 @@
+sqlalchemy
+alembic
+asyncpg
+pandas
+openpyxl
+fastapi[all]

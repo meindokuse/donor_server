@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from mako.compat import win32
 from sqlalchemy.sql.functions import current_date
 
 from src.schemas.donations import DonationCreate
@@ -7,6 +8,7 @@ from src.data.unitofwork import IUnitOfWork
 
 from src.utils import type_donations
 from typing import Optional
+from pandas import DataFrame
 
 
 class DonationService:
@@ -105,3 +107,9 @@ class DonationService:
                 "quantity_donation": quantity_donation,
                 "donations": donations_t_list
             }
+
+    async def get_table_donations(self, uow: IUnitOfWork):
+        async with uow:
+            rows = await uow.donations.get_table()
+
+            return rows

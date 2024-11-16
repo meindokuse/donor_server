@@ -1,8 +1,15 @@
 from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import UOWDep
+from src.config import ROOT_DIR
 from src.schemas.auth import UserCreate
 from src.services.user_service import UserService
+
+from fastapi.responses import FileResponse
+import pandas as pd
+import asyncpg
+import tempfile
+import os
 
 router = APIRouter(
     prefix="/user",
@@ -66,7 +73,9 @@ async def register(user_create: UserCreate, uow: UOWDep):
         return {"status": "success", "user": {"id": user_id, "name": user_create.name}}
 
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise {
+            'status': str(e),
+        }
 
 
 @router.get("/login")
@@ -92,3 +101,37 @@ async def check_exist(name: str, uow: UOWDep):
             return {"status": "success", "is_exist": True}
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
+
+
+@router.get("/get_table")
+async def get_table(uow: UOWDep):
+    try:
+        donations = await UserService().get_table_users(uow)
+
+        # Преобразуем данные в DataFrame
+        df = pd.DataFrame([dict(row) for row in donations])
+
+        # Путь до временной директории
+        temp_dir = os.path.join(ROOT_DIR, 'temp')
+
+        # Создаем папку, если ее нет
+        os.makedirs(temp_dir, exist_ok=True)
+
+        # Указываем полный путь для файла
+        filename = os.path.join(temp_dir, "donations.xlsx")
+
+        # Сохраняем DataFrame в Excel файл
+        df.to_excel(filename, index=False)
+
+        # Отправляем файл пользователю
+        response = FileResponse(filename,
+                                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                filename="donations.xlsx")
+
+
+        return response
+    except Exception as e:
+        raise {
+            'status':'error',
+            'message':'qweqw'
+        }

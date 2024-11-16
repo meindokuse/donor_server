@@ -1,5 +1,5 @@
 from pygments.lexer import default
-from sqlalchemy import Column, String, Integer, Date
+from sqlalchemy import Column, String, Integer, Date, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.db.database import Base
@@ -25,8 +25,8 @@ class Users(Base):
     telegram_id: Mapped[str] = mapped_column(String, unique=True, nullable=True)
     name: Mapped[str] = mapped_column(String, unique=True)
     group: Mapped[int] = mapped_column(Integer,nullable=False)
-    kell: Mapped[int] = mapped_column(Integer,nullable=False)
-    rezus: Mapped[int] = mapped_column(Integer,nullable=False)
+    kell: Mapped[bool] = mapped_column(Boolean,nullable=False)
+    rezus: Mapped[bool] = mapped_column(Boolean,nullable=False)
     registered_at: Mapped[date] = mapped_column(Date, default=date.today)
     role_id: Mapped[int] = mapped_column(Integer,nullable=False,default = 2)
 

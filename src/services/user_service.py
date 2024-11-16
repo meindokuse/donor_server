@@ -1,8 +1,6 @@
-from datetime import datetime, date
 
 from fastapi import HTTPException
 
-from src.models.auth import Users
 from src.schemas.auth import UserCreate, UserRead
 from src.data.unitofwork import IUnitOfWork
 
@@ -28,3 +26,8 @@ class UserService:
         async with uow:
             user = await uow.users.find_one(name=name)
             return user
+
+    async def get_table_users(self, uow: IUnitOfWork):
+        async with uow:
+            return await uow.users.get_table()
+

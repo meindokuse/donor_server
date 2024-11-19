@@ -114,6 +114,7 @@ async def get_donations_info_from_user(
         donation_info = await DonationService().get_donations_info_from_user(uow, name=name)
         user = await UserService().get_user_by_name(uow, name)
 
+
         return {
             "status": "success",
             "user": user,
@@ -121,7 +122,7 @@ async def get_donations_info_from_user(
         }
 
     except Exception as e:
-        return {
+        raise {
             'status': 'error',
             'details': e
         }

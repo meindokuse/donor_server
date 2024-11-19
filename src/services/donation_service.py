@@ -8,7 +8,6 @@ from src.data.unitofwork import IUnitOfWork
 
 from src.utils import type_donations
 from typing import Optional
-from pandas import DataFrame
 
 
 class DonationService:
@@ -33,8 +32,11 @@ class DonationService:
                 user = await uow.users.find_one(name=name)
                 name = user.name
 
-            last_donation = max(await uow.donations.find_all(page=1, limit=0, owner=name),
-                                key=lambda donation: donation.id)
+            don = await uow.donations.find_all(page=1, limit=0, owner=name)
+            if don == []:
+                return None
+
+            last_donation = max(don, key=lambda donation: donation.id)
             last_data = last_donation.date
 
             for t in type_donations:

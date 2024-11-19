@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  db:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+
+  server:
+    container_name: donor_server
+    build: ./
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASS}@db/${DB_NAME}
+    ports:
+      - "8000:8000"
+    restart: always
+
+  backup:
+    container_name: backup_service
+    image: postgres:latest
+    volumes:
+      - ./backups:/backups
+      - ./backup.sh:/backup.sh
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    entrypoint: [ "bash", "-c", "while true; do sleep 86400; ./backup.sh; done" ]
+
+volumes:
+  db_data:

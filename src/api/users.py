@@ -128,10 +128,9 @@ async def get_table(uow: UOWDep):
                                 media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                 filename="donations.xlsx")
 
-
         return response
     except Exception as e:
         raise {
-            'status':'error',
-            'message':'qweqw'
+            'status': 'error',
+            'message': 'qweqw'
         }

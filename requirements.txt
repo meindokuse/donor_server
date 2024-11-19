@@ -3,4 +3,6 @@ alembic
 asyncpg
 pandas
 openpyxl
+gunicorn
+uvicorn
 fastapi[all]

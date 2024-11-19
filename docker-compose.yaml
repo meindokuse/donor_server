@@ -22,6 +22,8 @@ services:
     ports:
       - "8000:8000"
     restart: always
+    env_file:
+      - .env
 
   backup:
     container_name: backup_service
@@ -34,6 +36,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     entrypoint: [ "bash", "-c", "while true; do sleep 86400; ./backup.sh; done" ]
+    env_file:
+      - .env
 
 volumes:
   db_data:

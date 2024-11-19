@@ -6,4 +6,5 @@ openpyxl
 gunicorn
 uvicorn
 fastapi[all]
-dotenv
+python-dotenv
+passlib

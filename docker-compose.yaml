@@ -1,4 +1,8 @@
 version: "3.8"
+
+networks:
+  donor_network:
+
 services:
   db:
     container_name: postgres
@@ -13,6 +17,8 @@ services:
       - "5432:5432"
     env_file:
       - .env
+    networks:
+      - donor_network
 
   server:
     container_name: donor_server
@@ -28,6 +34,8 @@ services:
     restart: always
     env_file:
       - .env
+    networks:
+      - donor_network
 
   backup:
     container_name: backup_service
@@ -42,6 +50,8 @@ services:
     entrypoint: [ "bash", "-c", "while true; do sleep 86400; ./backup.sh; done" ]
     env_file:
       - .env
+    networks:
+      - donor_network
 
 volumes:
   db_data:

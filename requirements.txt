@@ -8,3 +8,4 @@ uvicorn
 fastapi[all]
 python-dotenv
 passlib
+greenlet

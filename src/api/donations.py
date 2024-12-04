@@ -6,6 +6,7 @@ from src.api.dependencies import UOWDep
 from src.schemas.donations import DonationCreate
 from src.services.donation_service import DonationService
 from src.services.user_service import UserService
+from src.utils import FullDonation, Tromb, Plazma
 
 router = APIRouter(
     prefix="/donation",
@@ -70,6 +71,14 @@ async def add_donation(
     try:
         donation_id = await DonationService().add_donation(uow, donation_data)
 
+        name = donation_data.owner
+        if donation_data.type == FullDonation or donation_data.type == Tromb:
+            await UserService().edit_status(uow, name, 1)
+        if donation_data.type == Plazma:
+            await UserService().edit_status(uow, name, 0.5)
+        else:
+            raise HTTPException(status_code=400, detail="Не верно указан тип донации")
+
         return {
             "status": "success",
             "id": donation_id
@@ -113,7 +122,6 @@ async def get_donations_info_from_user(
     try:
         donation_info = await DonationService().get_donations_info_from_user(uow, name=name)
         user = await UserService().get_user_by_name(uow, name)
-
 
         return {
             "status": "success",

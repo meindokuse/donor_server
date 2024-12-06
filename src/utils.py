@@ -14,6 +14,10 @@ def hash_password(password):
 
 type_donations = ["Цельная кровь","Плазма","Тромбоциты","Гранулоциты"]
 
+FullDonation = "Цельная кровь"
+Plazma = "Плазма"
+Tromb = "Тромбоциты"
+
 # async def get_user_by_telegram_id(telegram_id: str, session: AsyncSession):
 #     if not telegram_id:
 #         raise HTTPException(status_code=400, detail="telegram_id must be provided")

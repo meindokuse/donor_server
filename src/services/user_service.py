@@ -1,4 +1,3 @@
-
 from fastapi import HTTPException
 
 from src.schemas.auth import UserCreate, UserRead
@@ -31,3 +30,12 @@ class UserService:
         async with uow:
             return await uow.users.get_table()
 
+    async def edit_status(self, uow: IUnitOfWork, name: str, points: float):
+        async with uow:
+            user: UserRead = await uow.users.find_one(name=name)
+            status_points = user.status
+            status_points += points
+            id = user.id
+
+            await uow.users.edit_one(id=id, data={'status': status_points})
+            await uow.commit()

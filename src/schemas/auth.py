@@ -24,6 +24,7 @@ class UserRead(BaseModel):
     kell: bool
     role_id: int
     registered_on: date
+    status: float
 
     class Config:
         orm_mode = True

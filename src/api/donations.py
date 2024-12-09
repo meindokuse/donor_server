@@ -75,7 +75,7 @@ async def add_donation(
         if donation_data.type == FullDonation or donation_data.type == Tromb:
             await UserService().edit_status(uow, name, 1)
         if donation_data.type == Plazma:
-            await UserService().edit_status(uow, name, 0.5)
+            await UserService().edit_status(uow, name, 0.66)
         else:
             raise HTTPException(status_code=400, detail="Не верно указан тип донации")
 
